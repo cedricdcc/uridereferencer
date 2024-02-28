@@ -17,6 +17,28 @@ function dereferenceURI(graph, trajectory, uri) {
   return graph;
 }
 
+function getObjectsFromPropertyPathList(graph, trajectory, uri) {
+  // do the getObjectsGraphFromPropertyPath reciprocal until you find an object
+  // if you find an object, return it
+  // if you don't find an object , pop the last element of the trajectory and do the getObjectsGraphFromPropertyPath reciprocal again
+  console.log(trajectory);
+  let objects = getObjectsGraphFromPropertyPath(graph, trajectory, uri);
+  if (objects.length > 0) {
+    console.log(objects);
+    return objects;
+  }
+
+  if (trajectory.length > 0) {
+    console.log(trajectory);
+    trajectory.pop();
+    return getObjectsGraphFromPropertyPath(graph, trajectory, uri);
+  }
+
+  if (trajectory.length == 0) {
+    return [];
+  }
+}
+
 function getObjectsGraphFromPropertyPath(graph, trajectory, uri) {
   console.log(graph);
   let trajectory_string = "<" + trajectory.join(">/<") + ">";
@@ -35,4 +57,8 @@ function getObjectsGraphFromPropertyPath(graph, trajectory, uri) {
   return all_objects;
 }
 
-module.exports = { dereferenceURI, getObjectsGraphFromPropertyPath };
+module.exports = {
+  dereferenceURI,
+  getObjectsGraphFromPropertyPath,
+  getObjectsFromPropertyPathList,
+};
