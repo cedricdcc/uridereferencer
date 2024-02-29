@@ -8,3 +8,6 @@ install:
 
 bundle:
 	@npm run build
+
+deploy:
+	@npm run deploy
