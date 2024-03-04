@@ -1,19 +1,48 @@
 import * as $rdf from "rdflib";
 import rdfDereferencer from "rdf-dereference";
 
-function dereferenceURI(graph, trajectory, uri) {
+async function dereferenceURI(graph, trajectory, uri) {
   // check type of parameters
   // trajectory is an array of URI strings
   if (!Array.isArray(trajectory)) {
     throw new Error("trajectory must be an array of URI strings");
   }
-  // graph is an RDFLib graph
-  if (!(graph instanceof $rdf.graph)) {
+  // graph is an RDFLib graph object IndexedFormula { termType: 'Graph', ... }
+  if (!(graph instanceof $rdf.IndexedFormula)) {
+    console.log(graph);
+    console.log(typeof graph);
     throw new Error("graph must be an RDFLib graph");
   }
 
   // example trajectory: ["http://marineregions.org/ns/ontology#hasGeometry", "http://www.opengis.net/ont/geosparql#asWKT"]
+  let trajectory_reached = "";
+  while (trajectory_reached !== trajectory) {
+    let previous_trajectory = trajectory_reached;
+    console.log(trajectory);
+    let all_objects_with_trajectory_dict = getObjectsFromPropertyPathList(
+      graph,
+      trajectory,
+      uri
+    );
+    console.log(all_objects_with_trajectory_dict);
+    let trajectory_reached = all_objects_with_trajectory_dict["trajectory"];
+    let objects = all_objects_with_trajectory_dict["objects"];
+    console.log(objects);
+    for (let i = 0; i < objects.length; i++) {
+      let object = objects[i];
+      let object_graph = await getLinkedDataNQuads(object);
+      console.log(object_graph);
+      graph.addAll(object_graph.statements);
+    }
 
+    if (
+      trajectory_reached.length === 1 &&
+      previous_trajectory === trajectory_reached
+    ) {
+      break;
+    }
+  }
+  console.log(graph);
   return graph;
 }
 
@@ -21,22 +50,22 @@ function getObjectsFromPropertyPathList(graph, trajectory, uri) {
   // do the getObjectsGraphFromPropertyPath reciprocal until you find an object
   // if you find an object, return it
   // if you don't find an object , pop the last element of the trajectory and do the getObjectsGraphFromPropertyPath reciprocal again
-  console.log(trajectory);
+  //console.log(trajectory);
   let objects = getObjectsGraphFromPropertyPath(graph, trajectory, uri);
-  console.log(objects);
+  //console.log(objects);
   if (objects.length > 0) {
     console.log(objects);
-    return objects;
+    return { trajectory: trajectory, objects: objects };
   }
 
-  if (trajectory.length > 0) {
-    console.log(trajectory);
+  if (trajectory.length > 1) {
+    //console.log(trajectory);
     trajectory.pop();
     return getObjectsFromPropertyPathList(graph, trajectory, uri);
   }
 
-  if (trajectory.length == 0) {
-    return [];
+  if (trajectory.length == 1) {
+    return { trajectory: trajectory, objects: [] };
   }
 }
 
@@ -86,7 +115,7 @@ export async function getLinkedDataNQuads(uri) {
 
     const data = await getData(uri, return_formats);
     let text = await data.response.text();
-    console.log(text);
+    //console.log(text);
 
     switch (data.format) {
       case "application/ld+json":
@@ -143,7 +172,7 @@ export async function getLinkedDataNQuads(uri) {
     // add data to store
     // await addDataToStore(store, data);
     // return the store
-    console.log(store);
+    //console.log(store);
     return store;
   } catch (error) {
     console.log(error);
@@ -151,7 +180,7 @@ export async function getLinkedDataNQuads(uri) {
 }
 
 function getObjectsGraphFromPropertyPath(graph, trajectory, uri) {
-  //console.log(graph);
+  console.log(graph);
   let trajectory_string = "<" + trajectory.join(">/<") + ">";
   console.log(trajectory_string);
   let query = `SELECT ?o WHERE { <${uri}> ${trajectory_string} ?o . }`;

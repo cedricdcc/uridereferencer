@@ -34,7 +34,7 @@ test("getObjectsGraphFromPropertyPath returns correct value", async () => {
     "http://example.org/subject"
   );
 
-  console.log(output);
+  //console.log(output);
 
   // Verify
   expect(output).toEqual(expectedOutput);
@@ -65,8 +65,8 @@ test("getObjectsFromPropertyPathList returns correct value", () => {
     "http://example.org/subject"
   );
 
-  console.log(output);
+  //console.log(output);
 
   // Verify
-  expect(output).toEqual(expectedOutput);
+  expect(output["objects"]).toEqual(expectedOutput);
 });
