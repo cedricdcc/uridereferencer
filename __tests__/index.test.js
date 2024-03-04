@@ -108,10 +108,6 @@ describe("dereferenceURI", () => {
     let leg_resultGraph = resultGraph.statements.length;
     console.log(leg_resultGraph);
 
-    //write output to file
-    let output = resultGraph.toString();
-    fs.writeFileSync("output.ttl", output);
-
     expect(leg_resultGraph).toBeGreaterThan(leg_graph);
   }, 30000);
 });
