@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose",
-    "build": "browserify src/index.js -o uridereferencer.js"
+    "build": "browserify src/index.js -o index.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
     "jest": "^29.7.0"
   },
   "dependencies": {
+    "babelify": "^10.0.0",
     "rdf-dereference": "^2.2.0",
     "rdflib": "^2.2.34-1"
   },
@@ -33,5 +34,17 @@
     "transform": {
       "^.+\\.js$": "babel-jest"
     }
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ]
+        }
+      ]
+    ]
   }
 }
